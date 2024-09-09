@@ -72,8 +72,8 @@ class _MyHomePageState extends State<MyHomePage> {
                 width: (widthPhysics! * 0.8).toInt(),
                 height: (heightPhysics! * 0.8).toInt(),
                 alignment: OverlayAlignment.topLeft,
-                enableDrag: false,
-                positionGravity: PositionGravity.auto,
+                enableDrag: true,
+                positionGravity: PositionGravity.none,
                 flag: OverlayFlag.defaultFlag,
                 startPosition: OverlayPosition(widthLogical! * 0.1, heightLogical! * 0.1),
               );

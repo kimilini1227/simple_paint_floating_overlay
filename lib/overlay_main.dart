@@ -32,31 +32,38 @@ class _MyOverlayPageState extends State<MyOverlayPage> {
       ),
       child: Column(
         children: <Widget>[
-          Row(
-            children: <Widget>[
-              IconButton.outlined(
-                onPressed: () {
-                  if (_controller.canUndo) _controller.undo();
-                },
-                icon: const Icon(Icons.undo),
-              ),
-              IconButton.outlined(
-                onPressed: () {
-                  if (_controller.canRedo) _controller.redo();
-                },
-                icon: const Icon(Icons.redo),
-              ),
-              IconButton.outlined(
-                onPressed: () {
-                  _controller.clear();
-                },
-                icon: const Icon(Icons.clear),
-              ),
-            ],
+          Container(
+            constraints: const BoxConstraints.expand(height: 48),
+            color: Colors.yellow,
+            child: Row(
+              children: <Widget>[
+                IconButton.outlined(
+                  onPressed: () {
+                    if (_controller.canUndo) _controller.undo();
+                  },
+                  icon: const Icon(Icons.undo),
+                ),
+                IconButton.outlined(
+                  onPressed: () {
+                    if (_controller.canRedo) _controller.redo();
+                  },
+                  icon: const Icon(Icons.redo),
+                ),
+                IconButton.outlined(
+                  onPressed: () {
+                    _controller.clear();
+                  },
+                  icon: const Icon(Icons.clear),
+                ),
+              ],
+            ),
           ),
           Expanded(
-            child: Painter(
-              paintController: _controller
+            child: Container(
+              constraints: const BoxConstraints.expand(),
+              child: Painter(
+                  paintController: _controller
+              ),
             ),
           ),
         ],
