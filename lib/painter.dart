@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 
 import 'package:flutter_overlay_window/flutter_overlay_window.dart';
 
@@ -8,13 +7,7 @@ import 'package:simple_paint_floating_overlay/paint_history.dart';
 class Painter extends StatefulWidget {
   final PaintController paintController;
 
-  Painter(
-    {
-      required this.paintController
-    }
-  ) : super(key: ValueKey<PaintController>(paintController)) {
-    assert(this.paintController != null);
-  }
+  const Painter({required this.paintController, super.key});
 
   @override
   State<Painter> createState() => _PainterState();
@@ -23,24 +16,22 @@ class Painter extends StatefulWidget {
 class _PainterState extends State<Painter> {
   @override
   Widget build(BuildContext context) {
-    return Container(
-      child: GestureDetector(
-        child: CustomPaint(
-          willChange: true,
-          painter: _CustomPainter(
-            widget.paintController._paintHistory,
-            repaint: widget.paintController,
-          ),
+    return GestureDetector(
+      onPanStart: _onPaintStart,
+      onPanUpdate: _onPaintUpdate,
+      onPanEnd: _onPaintEnd,
+      child: CustomPaint(
+        willChange: true,
+        painter: _CustomPainter(
+          widget.paintController._paintHistory,
+          repaint: widget.paintController,
         ),
-        onPanStart: _onPaintStart,
-        onPanUpdate: _onPaintUpdate,
-        onPanEnd: _onPaintEnd,
       ),
-      constraints: BoxConstraints.expand(),
     );
   }
 
-  void _onPaintStart(DragStartDetails start) {
+  void _onPaintStart(DragStartDetails start) async {
+    await FlutterOverlayWindow.resizeOverlay(288, 541, false);
     widget.paintController._paintHistory.addPaint(_getGlobalToLocalPosition(start.globalPosition));
     widget.paintController._notifyListeners();
   }
@@ -50,7 +41,8 @@ class _PainterState extends State<Painter> {
     widget.paintController._notifyListeners();
   }
 
-  void _onPaintEnd(DragEndDetails end) {
+  void _onPaintEnd(DragEndDetails end) async {
+    await FlutterOverlayWindow.resizeOverlay(288, 541, true);
     widget.paintController._paintHistory.endPaint();
     widget.paintController._notifyListeners();
   }
@@ -81,10 +73,10 @@ class _CustomPainter extends CustomPainter {
 }
 
 class PaintController extends ChangeNotifier {
-  PaintHistory _paintHistory = PaintHistory();
-  Color _drawColor = Color.fromARGB(255, 0, 0, 0);
-  double _thickness = 5.0;
-  Color _backgroundColor = Colors.transparent;
+  final PaintHistory _paintHistory = PaintHistory();
+  final Color _drawColor = const Color.fromARGB(255, 0, 0, 0);
+  final double _thickness = 5.0;
+  final Color _backgroundColor = Colors.transparent;
 
   PaintController() : super() {
     Paint paint = Paint();
