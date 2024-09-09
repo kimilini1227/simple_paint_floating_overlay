@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'package:flutter_overlay_window/flutter_overlay_window.dart';
+
 import 'package:simple_paint_floating_overlay/painter.dart';
 
 class MyOverlayApp extends StatelessWidget {
@@ -59,15 +61,48 @@ class _MyOverlayPageState extends State<MyOverlayPage> {
             ),
           ),
           Expanded(
-            child: Container(
-              constraints: const BoxConstraints.expand(),
-              child: Painter(
-                  paintController: _controller
-              ),
+            child: Stack(
+              alignment: AlignmentDirectional.bottomEnd,
+              children: <Widget>[
+                Container(
+                  constraints: const BoxConstraints.expand(),
+                  child: Painter(
+                      paintController: _controller
+                  ),
+                ),
+                Container(
+                  color: Colors.yellow,
+                  width: 12.0,
+                  height: 12.0,
+                  child: GestureDetector(
+                    onPanStart: _onDragLowerRightEdgeStart,
+                    onPanUpdate: _onDragLowerRightEdgeUpdate,
+                    onPanEnd: _onDragLowerRightEdgeEnd,
+                  ),
+                ),
+              ],
             ),
           ),
         ],
       ),
     );
+  }
+
+  void _onDragLowerRightEdgeStart(DragStartDetails details) async {
+    final double xPos = details.globalPosition.dx;
+    final double yPos = details.globalPosition.dy;
+    await FlutterOverlayWindow.resizeOverlay(xPos.toInt(), yPos.toInt(), false);
+  }
+
+  void _onDragLowerRightEdgeUpdate(DragUpdateDetails details) async {
+    final double xPos = details.globalPosition.dx;
+    final double yPos = details.globalPosition.dy;
+    await FlutterOverlayWindow.resizeOverlay(xPos.toInt(), yPos.toInt(), false);
+  }
+
+  void _onDragLowerRightEdgeEnd(DragEndDetails details) async {
+    final double xPos = details.globalPosition.dx;
+    final double yPos = details.globalPosition.dy;
+    await FlutterOverlayWindow.resizeOverlay(xPos.toInt(), yPos.toInt(), true);
   }
 }
