@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 
 class _PaintData {
   _PaintData({
@@ -10,15 +9,15 @@ class _PaintData {
 }
 
 class PaintHistory {
-  List<MapEntry<_PaintData, Paint>> _paintList = [];
-  List<MapEntry<_PaintData, Paint>> _undoneList = [];
-  Paint _backgroundPaint = Paint();
+  final List<MapEntry<_PaintData, Paint>> _paintList = List<MapEntry<_PaintData, Paint>>.empty(growable: true);
+  final List<MapEntry<_PaintData, Paint>> _undoneList = List<MapEntry<_PaintData, Paint>>.empty(growable: true);
+  final Paint _backgroundPaint = Paint();
   bool _inDrag = false;
   Paint? currentPaint;
 
-  bool canUndo() => _paintList.length > 0;
+  bool canUndo() => _paintList.isNotEmpty;
 
-  bool canRedo() => _undoneList.length > 0;
+  bool canRedo() => _undoneList.isNotEmpty;
 
   void undo() {
     if (!_inDrag && canUndo()) {
@@ -76,9 +75,7 @@ class PaintHistory {
     );
 
     for (MapEntry<_PaintData, Paint> data in _paintList) {
-      if (data.key.path != null) {
-        canvas.drawPath(data.key.path, data.value);
-      }
+      canvas.drawPath(data.key.path, data.value);
     }
   }
 }

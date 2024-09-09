@@ -1,7 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
-
-import 'package:flutter_overlay_window/flutter_overlay_window.dart';
 
 import 'package:simple_paint_floating_overlay/painter.dart';
 
@@ -10,9 +7,9 @@ class MyOverlayApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return const MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: const MyOverlayPage(),
+      home: MyOverlayPage(),
     );
   }
 }
@@ -25,7 +22,7 @@ class MyOverlayPage extends StatefulWidget {
 }
 
 class _MyOverlayPageState extends State<MyOverlayPage> {
-  PaintController _controller = PaintController();
+  final PaintController _controller = PaintController();
 
   @override
   Widget build(BuildContext context) {

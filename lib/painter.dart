@@ -1,20 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
-
-import 'package:flutter_overlay_window/flutter_overlay_window.dart';
 
 import 'package:simple_paint_floating_overlay/paint_history.dart';
 
 class Painter extends StatefulWidget {
   final PaintController paintController;
 
-  Painter(
-    {
-      required this.paintController
-    }
-  ) : super(key: ValueKey<PaintController>(paintController)) {
-    assert(this.paintController != null);
-  }
+  const Painter({required this.paintController, super.key});
 
   @override
   State<Painter> createState() => _PainterState();
@@ -24,7 +15,11 @@ class _PainterState extends State<Painter> {
   @override
   Widget build(BuildContext context) {
     return Container(
+      constraints: const BoxConstraints.expand(),
       child: GestureDetector(
+        onPanStart: _onPaintStart,
+        onPanUpdate: _onPaintUpdate,
+        onPanEnd: _onPaintEnd,
         child: CustomPaint(
           willChange: true,
           painter: _CustomPainter(
@@ -32,11 +27,7 @@ class _PainterState extends State<Painter> {
             repaint: widget.paintController,
           ),
         ),
-        onPanStart: _onPaintStart,
-        onPanUpdate: _onPaintUpdate,
-        onPanEnd: _onPaintEnd,
       ),
-      constraints: BoxConstraints.expand(),
     );
   }
 
@@ -81,10 +72,10 @@ class _CustomPainter extends CustomPainter {
 }
 
 class PaintController extends ChangeNotifier {
-  PaintHistory _paintHistory = PaintHistory();
-  Color _drawColor = Color.fromARGB(255, 0, 0, 0);
-  double _thickness = 5.0;
-  Color _backgroundColor = Colors.transparent;
+  final PaintHistory _paintHistory = PaintHistory();
+  final Color _drawColor = const Color.fromARGB(255, 0, 0, 0);
+  final double _thickness = 5.0;
+  final Color _backgroundColor = Colors.transparent;
 
   PaintController() : super() {
     Paint paint = Paint();

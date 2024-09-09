@@ -56,10 +56,11 @@ class _MyHomePageState extends State<MyHomePage> {
     widthLogical = MediaQuery.sizeOf(context).width;
     heightLogical = MediaQuery.sizeOf(context).height;
     return Scaffold(
-      body: Center(
+      body: const Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
+            Placeholder()
           ],
         ),
       ),
