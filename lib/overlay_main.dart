@@ -25,6 +25,7 @@ class MyOverlayPage extends StatefulWidget {
 
 class _MyOverlayPageState extends State<MyOverlayPage> {
   final PaintController _controller = PaintController();
+  bool isMinimize = false;
 
   @override
   Widget build(BuildContext context) {
@@ -38,30 +39,61 @@ class _MyOverlayPageState extends State<MyOverlayPage> {
             constraints: const BoxConstraints.expand(height: 48),
             color: Colors.yellow,
             child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
-                IconButton.outlined(
-                  onPressed: () {
-                    if (_controller.canUndo) _controller.undo();
-                  },
-                  icon: const Icon(Icons.undo),
+                Row(
+                  children: <Widget>[
+                    IconButton.outlined(
+                      onPressed: () {
+                        if (_controller.canUndo) _controller.undo();
+                      },
+                      icon: const Icon(Icons.undo),
+                    ),
+                    IconButton.outlined(
+                      onPressed: () {
+                        if (_controller.canRedo) _controller.redo();
+                      },
+                      icon: const Icon(Icons.redo),
+                    ),
+                    IconButton.outlined(
+                      onPressed: () {
+                        _controller.clear();
+                      },
+                      icon: const Icon(Icons.clear),
+                    ),
+                  ],
                 ),
-                IconButton.outlined(
-                  onPressed: () {
-                    if (_controller.canRedo) _controller.redo();
-                  },
-                  icon: const Icon(Icons.redo),
-                ),
-                IconButton.outlined(
-                  onPressed: () {
-                    _controller.clear();
-                  },
-                  icon: const Icon(Icons.clear),
+                Row(
+                  children: <Widget>[
+                    IconButton.outlined(
+                      onPressed: () {
+                        FlutterOverlayWindow.resizeOverlay(
+                            288,
+                            isMinimize ? 541 : 50,
+                            true
+                        );
+                        setState(() {
+                          isMinimize = !isMinimize;
+                        });
+                      },
+                      style: IconButton.styleFrom(
+                        shape: const RoundedRectangleBorder(
+                          side: BorderSide(
+                            color: Colors.black,
+                            width: 1,
+                            style: BorderStyle.solid,
+                          ),
+                        )
+                      ),
+                      icon: isMinimize ? const Icon(Icons.maximize) : const Icon(Icons.minimize),
+                    ),
+                  ],
                 ),
               ],
             ),
           ),
           Expanded(
-            child: Stack(
+            child: !isMinimize ? Stack(
               alignment: AlignmentDirectional.bottomEnd,
               children: <Widget>[
                 Container(
@@ -81,7 +113,7 @@ class _MyOverlayPageState extends State<MyOverlayPage> {
                   ),
                 ),
               ],
-            ),
+            ) : Container(),
           ),
         ],
       ),
