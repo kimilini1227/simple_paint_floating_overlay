@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_overlay_window/flutter_overlay_window.dart';
 
 import 'package:simple_paint_floating_overlay/overlay_main.dart';
+import 'package:simple_paint_floating_overlay/constraints.dart';
 
 void main() {
   runApp(const MyApp());
@@ -69,17 +70,20 @@ class _MyHomePageState extends State<MyHomePage> {
           if (status!) {
             if (!(await FlutterOverlayWindow.isActive())) {
               await FlutterOverlayWindow.showOverlay(
-                width: (widthPhysics! * 0.8).toInt(),
-                height: (heightPhysics! * 0.8).toInt(),
+                width: (widthPhysics! * Constraints.overlayWidthRatio).toInt(),
+                height: (heightPhysics! * Constraints.overlayHeightRatio).toInt(),
                 alignment: OverlayAlignment.topLeft,
                 enableDrag: true,
                 positionGravity: PositionGravity.none,
                 flag: OverlayFlag.defaultFlag,
-                startPosition: OverlayPosition(widthLogical! * 0.1, heightLogical! * 0.1),
+                startPosition: OverlayPosition(
+                    widthLogical! * Constraints.overlayXPositionRatio,
+                    heightLogical! * Constraints.overlayYPositionRatio
+                ),
               );
               FlutterOverlayWindow.shareData({
-                'width': (widthLogical! * 0.8).toInt(),
-                'height': (heightLogical! * 0.8).toInt(),
+                'width': (widthLogical! * Constraints.overlayWidthRatio).toInt(),
+                'height': (heightLogical! * Constraints.overlayHeightRatio).toInt(),
                 'enableDrag': true,
               });
             } else {

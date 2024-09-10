@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:simple_paint_floating_overlay/overlay.dart';
 import 'package:simple_paint_floating_overlay/painter.dart';
+import 'package:simple_paint_floating_overlay/constraints.dart';
 
 class MyOverlayApp extends StatelessWidget {
   const MyOverlayApp({super.key});
@@ -37,12 +38,12 @@ class _MyOverlayPageState extends State<MyOverlayPage> {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        border: Border.all(width: 1, color: Colors.yellow),
+        border: Border.all(width: Constraints.overlayWindowBorderWidth, color: Colors.yellow),
       ),
       child: Column(
         children: <Widget>[
           Container(
-            constraints: const BoxConstraints.expand(height: 48),
+            constraints: const BoxConstraints.expand(height: Constraints.overlayTopBarHeight),
             color: Colors.yellow,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -75,7 +76,8 @@ class _MyOverlayPageState extends State<MyOverlayPage> {
                       onPressed: () {
                         _overlayController!.resizeOverlay(
                             _overlayController!.currentWidth,
-                            isMinimize ? _overlayController!.previousHeight : 50,
+                            isMinimize ? _overlayController!.previousHeight
+                                : (Constraints.overlayTopBarHeight + 2 * Constraints.overlayWindowBorderWidth).toInt(),
                         );
                         setState(() {
                           isMinimize = !isMinimize;
