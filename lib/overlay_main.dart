@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'package:flutter_overlay_window/flutter_overlay_window.dart';
-
+import 'package:simple_paint_floating_overlay/overlay.dart';
 import 'package:simple_paint_floating_overlay/painter.dart';
 
 class MyOverlayApp extends StatelessWidget {
@@ -24,7 +23,15 @@ class MyOverlayPage extends StatefulWidget {
 }
 
 class _MyOverlayPageState extends State<MyOverlayPage> {
-  final PaintController _controller = PaintController();
+  OverlayController? _overlayController;
+  final PaintController _paintController = PaintController();
+  bool isMinimize = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _overlayController = OverlayController();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -38,36 +45,67 @@ class _MyOverlayPageState extends State<MyOverlayPage> {
             constraints: const BoxConstraints.expand(height: 48),
             color: Colors.yellow,
             child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
-                IconButton.outlined(
-                  onPressed: () {
-                    if (_controller.canUndo) _controller.undo();
-                  },
-                  icon: const Icon(Icons.undo),
+                Row(
+                  children: <Widget>[
+                    IconButton.outlined(
+                      onPressed: () {
+                        if (_paintController.canUndo) _paintController.undo();
+                      },
+                      icon: const Icon(Icons.undo),
+                    ),
+                    IconButton.outlined(
+                      onPressed: () {
+                        if (_paintController.canRedo) _paintController.redo();
+                      },
+                      icon: const Icon(Icons.redo),
+                    ),
+                    IconButton.outlined(
+                      onPressed: () {
+                        _paintController.clear();
+                      },
+                      icon: const Icon(Icons.clear),
+                    ),
+                  ],
                 ),
-                IconButton.outlined(
-                  onPressed: () {
-                    if (_controller.canRedo) _controller.redo();
-                  },
-                  icon: const Icon(Icons.redo),
-                ),
-                IconButton.outlined(
-                  onPressed: () {
-                    _controller.clear();
-                  },
-                  icon: const Icon(Icons.clear),
+                Row(
+                  children: <Widget>[
+                    IconButton.outlined(
+                      onPressed: () {
+                        _overlayController!.resizeOverlay(
+                            _overlayController!.currentWidth,
+                            isMinimize ? _overlayController!.previousHeight : 50,
+                        );
+                        setState(() {
+                          isMinimize = !isMinimize;
+                        });
+                      },
+                      style: IconButton.styleFrom(
+                        shape: const RoundedRectangleBorder(
+                          side: BorderSide(
+                            color: Colors.black,
+                            width: 1,
+                            style: BorderStyle.solid,
+                          ),
+                        )
+                      ),
+                      icon: isMinimize ? const Icon(Icons.maximize) : const Icon(Icons.minimize),
+                    ),
+                  ],
                 ),
               ],
             ),
           ),
           Expanded(
-            child: Stack(
+            child: !isMinimize ? Stack(
               alignment: AlignmentDirectional.bottomEnd,
               children: <Widget>[
                 Container(
                   constraints: const BoxConstraints.expand(),
                   child: Painter(
-                      paintController: _controller
+                    overlayController: _overlayController!,
+                    paintController: _paintController,
                   ),
                 ),
                 Container(
@@ -81,7 +119,7 @@ class _MyOverlayPageState extends State<MyOverlayPage> {
                   ),
                 ),
               ],
-            ),
+            ) : Container(),
           ),
         ],
       ),
@@ -91,18 +129,21 @@ class _MyOverlayPageState extends State<MyOverlayPage> {
   void _onDragLowerRightEdgeStart(DragStartDetails details) async {
     final double xPos = details.globalPosition.dx;
     final double yPos = details.globalPosition.dy;
-    await FlutterOverlayWindow.resizeOverlay(xPos.toInt(), yPos.toInt(), false);
+    await _overlayController!.updateEnableDrag(false);
+    await _overlayController!.resizeOverlay(xPos.toInt(), yPos.toInt());
   }
 
   void _onDragLowerRightEdgeUpdate(DragUpdateDetails details) async {
     final double xPos = details.globalPosition.dx;
     final double yPos = details.globalPosition.dy;
-    await FlutterOverlayWindow.resizeOverlay(xPos.toInt(), yPos.toInt(), false);
+    await _overlayController!.updateEnableDrag(false);
+    await _overlayController!.resizeOverlay(xPos.toInt(), yPos.toInt());
   }
 
   void _onDragLowerRightEdgeEnd(DragEndDetails details) async {
     final double xPos = details.globalPosition.dx;
     final double yPos = details.globalPosition.dy;
-    await FlutterOverlayWindow.resizeOverlay(xPos.toInt(), yPos.toInt(), true);
+    await _overlayController!.updateEnableDrag(true);
+    await _overlayController!.resizeOverlay(xPos.toInt(), yPos.toInt());
   }
 }

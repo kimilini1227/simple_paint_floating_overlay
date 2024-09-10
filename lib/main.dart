@@ -77,6 +77,11 @@ class _MyHomePageState extends State<MyHomePage> {
                 flag: OverlayFlag.defaultFlag,
                 startPosition: OverlayPosition(widthLogical! * 0.1, heightLogical! * 0.1),
               );
+              FlutterOverlayWindow.shareData({
+                'width': (widthLogical! * 0.8).toInt(),
+                'height': (heightLogical! * 0.8).toInt(),
+                'enableDrag': true,
+              });
             } else {
               await FlutterOverlayWindow.closeOverlay();
             }
