@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 
 import 'package:simple_paint_floating_overlay/overlay.dart';
@@ -80,7 +82,7 @@ class _MyOverlayPageState extends State<MyOverlayPage> {
                         _overlayController!.resizeOverlay(
                             _overlayController!.currentWidth,
                             isMinimize ? _overlayController!.previousHeight
-                                : (Constraints.overlayTopBarHeight + 2 * Constraints.overlayWindowBorderWidth).toInt(),
+                                : Constraints.overlayWindowMinimumHeight.toInt(),
                         );
                         setState(() {
                           isMinimize = !isMinimize;
@@ -131,22 +133,19 @@ class _MyOverlayPageState extends State<MyOverlayPage> {
   }
 
   void _onDragLowerRightEdgeStart(DragStartDetails details) async {
-    final double xPos = details.globalPosition.dx;
-    final double yPos = details.globalPosition.dy;
     await _overlayController!.updateEnableDrag(false);
-    await _overlayController!.resizeOverlay(xPos.toInt(), yPos.toInt());
   }
 
   void _onDragLowerRightEdgeUpdate(DragUpdateDetails details) async {
-    final double xPos = details.globalPosition.dx;
-    final double yPos = details.globalPosition.dy;
+    final double xPos = max(details.globalPosition.dx, Constraints.overlayWindowMinimumWidth);
+    final double yPos = max(details.globalPosition.dy, Constraints.overlayWindowMinimumHeight + Constraints.overlayLowerRightEdgeHeight);
     await _overlayController!.updateEnableDrag(false);
     await _overlayController!.resizeOverlay(xPos.toInt(), yPos.toInt());
   }
 
   void _onDragLowerRightEdgeEnd(DragEndDetails details) async {
-    final double xPos = details.globalPosition.dx;
-    final double yPos = details.globalPosition.dy;
+    final double xPos = max(details.globalPosition.dx, Constraints.overlayWindowMinimumWidth);
+    final double yPos = max(details.globalPosition.dy, Constraints.overlayWindowMinimumHeight + Constraints.overlayLowerRightEdgeHeight);
     await _overlayController!.updateEnableDrag(true);
     await _overlayController!.resizeOverlay(xPos.toInt(), yPos.toInt());
   }
