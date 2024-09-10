@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 
-import 'package:flutter_overlay_window/flutter_overlay_window.dart';
-
+import 'package:simple_paint_floating_overlay/overlay.dart';
 import 'package:simple_paint_floating_overlay/paint_history.dart';
 
 class Painter extends StatefulWidget {
+  final OverlayController overlayController;
   final PaintController paintController;
 
-  const Painter({required this.paintController, super.key});
+  const Painter({required this.overlayController, required this.paintController, super.key});
 
   @override
   State<Painter> createState() => _PainterState();
@@ -31,7 +31,7 @@ class _PainterState extends State<Painter> {
   }
 
   void _onPaintStart(DragStartDetails start) async {
-    await FlutterOverlayWindow.resizeOverlay(288, 541, false);
+    await widget.overlayController.updateEnableDrag(false);
     widget.paintController._paintHistory.addPaint(_getGlobalToLocalPosition(start.globalPosition));
     widget.paintController._notifyListeners();
   }
@@ -42,7 +42,7 @@ class _PainterState extends State<Painter> {
   }
 
   void _onPaintEnd(DragEndDetails end) async {
-    await FlutterOverlayWindow.resizeOverlay(288, 541, true);
+    await widget.overlayController.updateEnableDrag(true);
     widget.paintController._paintHistory.endPaint();
     widget.paintController._notifyListeners();
   }
