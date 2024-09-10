@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:simple_paint_floating_overlay/overlay.dart';
 import 'package:simple_paint_floating_overlay/painter.dart';
+import 'package:simple_paint_floating_overlay/constraints.dart';
 
 class MyOverlayApp extends StatelessWidget {
   const MyOverlayApp({super.key});
@@ -37,13 +38,16 @@ class _MyOverlayPageState extends State<MyOverlayPage> {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        border: Border.all(width: 1, color: Colors.yellow),
+        border: Border.all(
+            width: Constraints.overlayWindowBorderWidth,
+            color: Constraints.overlayWindowMainColor
+        ),
       ),
       child: Column(
         children: <Widget>[
           Container(
-            constraints: const BoxConstraints.expand(height: 48),
-            color: Colors.yellow,
+            constraints: const BoxConstraints.expand(height: Constraints.overlayTopBarHeight),
+            color: Constraints.overlayWindowMainColor,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
@@ -75,7 +79,8 @@ class _MyOverlayPageState extends State<MyOverlayPage> {
                       onPressed: () {
                         _overlayController!.resizeOverlay(
                             _overlayController!.currentWidth,
-                            isMinimize ? _overlayController!.previousHeight : 50,
+                            isMinimize ? _overlayController!.previousHeight
+                                : (Constraints.overlayTopBarHeight + 2 * Constraints.overlayWindowBorderWidth).toInt(),
                         );
                         setState(() {
                           isMinimize = !isMinimize;
@@ -84,9 +89,8 @@ class _MyOverlayPageState extends State<MyOverlayPage> {
                       style: IconButton.styleFrom(
                         shape: const RoundedRectangleBorder(
                           side: BorderSide(
-                            color: Colors.black,
-                            width: 1,
-                            style: BorderStyle.solid,
+                            color: Constraints.overlayWindowSubColor,
+                            width: Constraints.overlayMinimizeButtonBorderWidth,
                           ),
                         )
                       ),
@@ -109,9 +113,9 @@ class _MyOverlayPageState extends State<MyOverlayPage> {
                   ),
                 ),
                 Container(
-                  color: Colors.yellow,
-                  width: 12.0,
-                  height: 12.0,
+                  color: Constraints.overlayWindowMainColor,
+                  width: Constraints.overlayLowerRightEdgeWidth,
+                  height: Constraints.overlayLowerRightEdgeHeight,
                   child: GestureDetector(
                     onPanStart: _onDragLowerRightEdgeStart,
                     onPanUpdate: _onDragLowerRightEdgeUpdate,
