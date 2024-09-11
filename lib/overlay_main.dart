@@ -38,97 +38,127 @@ class _MyOverlayPageState extends State<MyOverlayPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        border: Border.all(
-            width: Constraints.overlayWindowBorderWidth,
-            color: Constraints.overlayWindowMainColor
-        ),
-      ),
-      child: Column(
-        children: <Widget>[
-          Container(
-            constraints: const BoxConstraints.expand(height: Constraints.overlayTopBarHeight),
-            color: Constraints.overlayWindowMainColor,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: <Widget>[
-                Row(
-                  children: <Widget>[
-                    IconButton.outlined(
-                      onPressed: () {
-                        if (_paintController.canUndo) _paintController.undo();
-                      },
-                      icon: const Icon(Icons.undo),
-                    ),
-                    IconButton.outlined(
-                      onPressed: () {
-                        if (_paintController.canRedo) _paintController.redo();
-                      },
-                      icon: const Icon(Icons.redo),
-                    ),
-                    IconButton.outlined(
-                      onPressed: () {
-                        _paintController.clear();
-                      },
-                      icon: const Icon(Icons.clear),
-                    ),
-                  ],
-                ),
-                Row(
-                  children: <Widget>[
-                    IconButton.outlined(
-                      onPressed: () {
-                        _overlayController!.resizeOverlay(
-                            _overlayController!.currentWidth,
-                            isMinimize ? _overlayController!.previousHeight
-                                : Constraints.overlayWindowMinimumHeight.toInt(),
-                        );
-                        setState(() {
-                          isMinimize = !isMinimize;
-                        });
-                      },
-                      style: IconButton.styleFrom(
-                        shape: const RoundedRectangleBorder(
-                          side: BorderSide(
-                            color: Constraints.overlayWindowSubColor,
-                            width: Constraints.overlayMinimizeButtonBorderWidth,
-                          ),
-                        )
-                      ),
-                      icon: isMinimize ? const Icon(Icons.maximize) : const Icon(Icons.minimize),
-                    ),
-                  ],
-                ),
-              ],
+    return StreamBuilder(
+      stream: _overlayController!.overlayStreamController.stream,
+      builder: (context, AsyncSnapshot<Map<String, dynamic>> snapshot) {
+        Color mainColor = _overlayController!.mainColor;
+        Color subColor = _overlayController!.subColor;
+        Color canvasColor = _overlayController!.canvasColor;
+        Color penColor = _overlayController!.penColor;
+        if (snapshot.hasData) {
+          final Map<String, dynamic> data = snapshot.data as Map<String, dynamic>;
+          mainColor = data['mainColor'];
+          subColor = data['subColor'];
+          canvasColor = data['canvasColor'];
+          penColor = data['penColor'];
+        }
+        _paintController.updateCanvasBackgroundColor(canvasColor);
+        _paintController.updateCanvasPenColor(penColor);
+        return Container(
+          decoration: BoxDecoration(
+            border: Border.all(
+              width: Constraints.overlayWindowBorderWidth,
+              color: mainColor,
             ),
           ),
-          Expanded(
-            child: !isMinimize ? Stack(
-              alignment: AlignmentDirectional.bottomEnd,
-              children: <Widget>[
-                Container(
-                  constraints: const BoxConstraints.expand(),
-                  child: Painter(
-                    overlayController: _overlayController!,
-                    paintController: _paintController,
-                  ),
+          child: Column(
+            children: <Widget>[
+              Container(
+                constraints: const BoxConstraints.expand(height: Constraints.overlayTopBarHeight),
+                color: mainColor,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: <Widget>[
+                    Row(
+                      children: <Widget>[
+                        IconButton(
+                          onPressed: () {
+                            if (_paintController.canUndo) _paintController.undo();
+                          },
+                          color: subColor,
+                          style: IconButton.styleFrom(
+                            side: BorderSide(color: subColor, width: Constraints.overlayUndoButtonBorderWidth),
+                          ),
+                          icon: const Icon(Icons.undo),
+                        ),
+                        IconButton(
+                          onPressed: () {
+                            if (_paintController.canRedo) _paintController.redo();
+                          },
+                          color: subColor,
+                          style: IconButton.styleFrom(
+                            side: BorderSide(color: subColor, width: Constraints.overlayRedoButtonBorderWidth),
+                          ),
+                          icon: const Icon(Icons.redo),
+                        ),
+                        IconButton(
+                          onPressed: () {
+                            _paintController.clear();
+                          },
+                          color: subColor,
+                          style: IconButton.styleFrom(
+                            side: BorderSide(color: subColor, width: Constraints.overlayClearButtonBorderWidth),
+                          ),
+                          icon: const Icon(Icons.clear),
+                        ),
+                      ],
+                    ),
+                    Row(
+                      children: <Widget>[
+                        IconButton.outlined(
+                          onPressed: () {
+                            _overlayController!.resizeOverlay(
+                              _overlayController!.currentWidth,
+                              isMinimize ? _overlayController!.previousHeight
+                                  : Constraints.overlayWindowMinimumHeight.toInt(),
+                            );
+                            setState(() {
+                              isMinimize = !isMinimize;
+                            });
+                          },
+                          style: IconButton.styleFrom(
+                              shape: RoundedRectangleBorder(
+                                side: BorderSide(
+                                  color: subColor,
+                                  width: Constraints.overlayMinimizeButtonBorderWidth,
+                                ),
+                              )
+                          ),
+                          icon: isMinimize ? const Icon(Icons.maximize) : const Icon(Icons.minimize),
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
-                Container(
-                  color: Constraints.overlayWindowMainColor,
-                  width: Constraints.overlayLowerRightEdgeWidth,
-                  height: Constraints.overlayLowerRightEdgeHeight,
-                  child: GestureDetector(
-                    onPanStart: _onDragLowerRightEdgeStart,
-                    onPanUpdate: _onDragLowerRightEdgeUpdate,
-                    onPanEnd: _onDragLowerRightEdgeEnd,
-                  ),
-                ),
-              ],
-            ) : Container(),
+              ),
+              Expanded(
+                child: !isMinimize ? Stack(
+                  alignment: AlignmentDirectional.bottomEnd,
+                  children: <Widget>[
+                    Container(
+                      constraints: const BoxConstraints.expand(),
+                      child: Painter(
+                        overlayController: _overlayController!,
+                        paintController: _paintController,
+                      ),
+                    ),
+                    Container(
+                      color: mainColor,
+                      width: Constraints.overlayLowerRightEdgeWidth,
+                      height: Constraints.overlayLowerRightEdgeHeight,
+                      child: GestureDetector(
+                        onPanStart: _onDragLowerRightEdgeStart,
+                        onPanUpdate: _onDragLowerRightEdgeUpdate,
+                        onPanEnd: _onDragLowerRightEdgeEnd,
+                      ),
+                    ),
+                  ],
+                ) : Container(),
+              ),
+            ],
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 
