@@ -2,12 +2,17 @@ import 'package:flutter/material.dart';
 
 import 'package:simple_paint_floating_overlay/overlay.dart';
 import 'package:simple_paint_floating_overlay/paint_history.dart';
+import 'package:simple_paint_floating_overlay/constraints.dart';
 
 class Painter extends StatefulWidget {
   final OverlayController overlayController;
   final PaintController paintController;
 
-  const Painter({required this.overlayController, required this.paintController, super.key});
+  const Painter({
+    required this.overlayController,
+    required this.paintController,
+    super.key
+  });
 
   @override
   State<Painter> createState() => _PainterState();
@@ -74,17 +79,26 @@ class _CustomPainter extends CustomPainter {
 
 class PaintController extends ChangeNotifier {
   final PaintHistory _paintHistory = PaintHistory();
-  final Color _drawColor = const Color.fromARGB(255, 0, 0, 0);
-  final double _thickness = 5.0;
-  final Color _backgroundColor = Colors.transparent;
 
   PaintController() : super() {
     Paint paint = Paint();
-    paint.color = _drawColor;
+    paint.color = Constraints.overlayCanvasPenColor;
     paint.style = PaintingStyle.stroke;
-    paint.strokeWidth = _thickness;
+    paint.strokeWidth = Constraints.overlayCanvasPenWidth;
     _paintHistory.currentPaint = paint;
-    _paintHistory.backgroundColor = _backgroundColor;
+    _paintHistory.backgroundColor = Constraints.overlayWindowCanvasColor;
+  }
+
+  void updateCanvasBackgroundColor(Color color) {
+    _paintHistory.backgroundColor = color;
+  }
+
+  void updateCanvasPenColor(Color color) {
+    _paintHistory.currentPaint!.color = color;
+  }
+
+  void updateCanvasPenWidth(double width) {
+    _paintHistory.currentPaint!.strokeWidth = width;
   }
 
   void undo() {

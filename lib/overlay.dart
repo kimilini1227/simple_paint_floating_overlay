@@ -1,17 +1,38 @@
-import 'package:flutter_overlay_window/flutter_overlay_window.dart';
+import 'dart:async';
 
-class OverlayController{
+import 'package:flutter/material.dart';
+
+import 'package:flutter_overlay_window/flutter_overlay_window.dart';
+import 'package:simple_paint_floating_overlay/constraints.dart';
+
+class OverlayController {
   int currentWidth = 0;
   int currentHeight = 0;
   int previousWidth = 0;
   int previousHeight = 0;
+  Color mainColor = Constraints.overlayWindowMainColor;
+  Color subColor = Constraints.overlayWindowSubColor;
+  Color canvasColor = Constraints.overlayWindowCanvasColor;
+  Color penColor = Constraints.overlayCanvasPenColor;
   bool currentEnableDrag = false;
+
+  StreamController<Map<String, dynamic>> overlayStreamController = StreamController<Map<String, dynamic>>();
 
   OverlayController._internal() {
     FlutterOverlayWindow.overlayListener.listen((data) {
       currentWidth = data['width'];
       currentHeight = data['height'];
       currentEnableDrag = data['enableDrag'];
+      mainColor = Constraints.settingColorList[data['mainColorIndex']];
+      subColor = Constraints.settingColorList[data['subColorIndex']];
+      canvasColor = Constraints.settingColorList[data['canvasColorIndex']];
+      penColor = Constraints.settingColorList[data['penColorIndex']];
+      overlayStreamController.sink.add({
+        'mainColor': mainColor,
+        'subColor': subColor,
+        'canvasColor': canvasColor,
+        'penColor': penColor,
+      });
     });
   }
 
