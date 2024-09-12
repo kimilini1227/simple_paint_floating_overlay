@@ -105,7 +105,7 @@ class _MyOverlayPageState extends State<MyOverlayPage> {
                     ),
                     Row(
                       children: <Widget>[
-                        IconButton.outlined(
+                        IconButton(
                           onPressed: () {
                             _overlayController!.resizeOverlay(
                               _overlayController!.currentWidth,
@@ -116,6 +116,7 @@ class _MyOverlayPageState extends State<MyOverlayPage> {
                               isMinimize = !isMinimize;
                             });
                           },
+                          color: subColor,
                           style: IconButton.styleFrom(
                               shape: RoundedRectangleBorder(
                                 side: BorderSide(
