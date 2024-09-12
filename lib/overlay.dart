@@ -4,8 +4,10 @@ import 'package:flutter/material.dart';
 
 import 'package:flutter_overlay_window/flutter_overlay_window.dart';
 import 'package:simple_paint_floating_overlay/constraints.dart';
+import 'package:simple_paint_floating_overlay/painter.dart';
 
-class OverlayController {
+class OverlayController with ChangeNotifier {
+  final PaintController paintController = PaintController();
   int currentWidth = 0;
   int currentHeight = 0;
   int previousWidth = 0;
@@ -15,24 +17,20 @@ class OverlayController {
   Color canvasColor = Constraints.overlayWindowCanvasColor;
   Color penColor = Constraints.overlayCanvasPenColor;
   bool currentEnableDrag = false;
-
-  StreamController<Map<String, dynamic>> overlayStreamController = StreamController<Map<String, dynamic>>();
+  bool isMinimize = false;
 
   OverlayController._internal() {
     FlutterOverlayWindow.overlayListener.listen((data) {
-      currentWidth = data['width'];
-      currentHeight = data['height'];
-      currentEnableDrag = data['enableDrag'];
-      mainColor = Constraints.settingColorList[data['mainColorIndex']];
-      subColor = Constraints.settingColorList[data['subColorIndex']];
-      canvasColor = Constraints.settingColorList[data['canvasColorIndex']];
-      penColor = Constraints.settingColorList[data['penColorIndex']];
-      overlayStreamController.sink.add({
-        'mainColor': mainColor,
-        'subColor': subColor,
-        'canvasColor': canvasColor,
-        'penColor': penColor,
-      });
+      currentWidth = data['width'] ?? currentWidth;
+      currentHeight = data['height'] ?? currentHeight;
+      mainColor = data['mainColorIndex'] != null ? Constraints.settingColorList[data['mainColorIndex']] : Constraints.overlayWindowMainColor;
+      subColor = data['subColorIndex'] != null ? Constraints.settingColorList[data['subColorIndex']] : Constraints.overlayWindowSubColor;
+      canvasColor = data['canvasColorIndex'] != null ? Constraints.settingColorList[data['canvasColorIndex']] : Constraints.overlayWindowCanvasColor;
+      penColor = data['penColorIndex'] != null ? Constraints.settingColorList[data['penColorIndex']] : Constraints.overlayCanvasPenColor;
+      currentEnableDrag = data['enableDrag'] ?? currentEnableDrag;
+      isMinimize = data['minimize'] ?? currentHeight;
+      paintController.clear();
+      notifyListeners();
     });
   }
 
@@ -57,6 +55,11 @@ class OverlayController {
   Future<void> updateEnableDrag(bool enableDrag) {
     currentEnableDrag = enableDrag;
     return FlutterOverlayWindow.resizeOverlay(currentWidth, currentHeight, enableDrag);
+  }
+
+  void updateIsMinimize(bool isMinimize) {
+    this.isMinimize = isMinimize;
+    notifyListeners();
   }
 
   Future<void> showOverlay({
