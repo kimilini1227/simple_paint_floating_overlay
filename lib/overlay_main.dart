@@ -26,34 +26,21 @@ class MyOverlayPage extends StatefulWidget {
 }
 
 class _MyOverlayPageState extends State<MyOverlayPage> {
-  OverlayController? _overlayController;
-  final PaintController _paintController = PaintController();
-  bool isMinimize = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _overlayController = OverlayController();
-  }
+  final OverlayController _overlayController = OverlayController();
 
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder(
-      stream: _overlayController!.overlayStreamController.stream,
-      builder: (context, AsyncSnapshot<Map<String, dynamic>> snapshot) {
-        Color mainColor = _overlayController!.mainColor;
-        Color subColor = _overlayController!.subColor;
-        Color canvasColor = _overlayController!.canvasColor;
-        Color penColor = _overlayController!.penColor;
-        if (snapshot.hasData) {
-          final Map<String, dynamic> data = snapshot.data as Map<String, dynamic>;
-          mainColor = data['mainColor'];
-          subColor = data['subColor'];
-          canvasColor = data['canvasColor'];
-          penColor = data['penColor'];
-        }
-        _paintController.updateCanvasBackgroundColor(canvasColor);
-        _paintController.updateCanvasPenColor(penColor);
+    return ListenableBuilder(
+      listenable: _overlayController,
+      builder: (context, child) {
+        Color mainColor = _overlayController.mainColor;
+        Color subColor = _overlayController.subColor;
+        Color canvasColor = _overlayController.canvasColor;
+        Color penColor = _overlayController.penColor;
+        bool isMinimize = _overlayController.isMinimize;
+
+        _overlayController.paintController.updateCanvasBackgroundColor(canvasColor);
+        _overlayController.paintController.updateCanvasPenColor(penColor);
         return Container(
           decoration: BoxDecoration(
             border: Border.all(
@@ -73,7 +60,9 @@ class _MyOverlayPageState extends State<MyOverlayPage> {
                       children: <Widget>[
                         IconButton(
                           onPressed: () {
-                            if (_paintController.canUndo) _paintController.undo();
+                            if (_overlayController.paintController.canUndo) {
+                              _overlayController.paintController.undo();
+                            }
                           },
                           color: subColor,
                           style: IconButton.styleFrom(
@@ -83,7 +72,9 @@ class _MyOverlayPageState extends State<MyOverlayPage> {
                         ),
                         IconButton(
                           onPressed: () {
-                            if (_paintController.canRedo) _paintController.redo();
+                            if (_overlayController.paintController.canRedo) {
+                              _overlayController.paintController.redo();
+                            }
                           },
                           color: subColor,
                           style: IconButton.styleFrom(
@@ -93,7 +84,7 @@ class _MyOverlayPageState extends State<MyOverlayPage> {
                         ),
                         IconButton(
                           onPressed: () {
-                            _paintController.clear();
+                            _overlayController.paintController.clear();
                           },
                           color: subColor,
                           style: IconButton.styleFrom(
@@ -107,14 +98,12 @@ class _MyOverlayPageState extends State<MyOverlayPage> {
                       children: <Widget>[
                         IconButton(
                           onPressed: () {
-                            _overlayController!.resizeOverlay(
-                              _overlayController!.currentWidth,
-                              isMinimize ? _overlayController!.previousHeight
+                            _overlayController.resizeOverlay(
+                              _overlayController.currentWidth,
+                              isMinimize ? _overlayController.previousHeight
                                   : Constraints.overlayWindowMinimumHeight.toInt(),
                             );
-                            setState(() {
-                              isMinimize = !isMinimize;
-                            });
+                            _overlayController.updateIsMinimize(!isMinimize);
                           },
                           color: subColor,
                           style: IconButton.styleFrom(
@@ -139,8 +128,8 @@ class _MyOverlayPageState extends State<MyOverlayPage> {
                     Container(
                       constraints: const BoxConstraints.expand(),
                       child: Painter(
-                        overlayController: _overlayController!,
-                        paintController: _paintController,
+                        overlayController: _overlayController,
+                        paintController: _overlayController.paintController,
                       ),
                     ),
                     Container(
@@ -164,20 +153,20 @@ class _MyOverlayPageState extends State<MyOverlayPage> {
   }
 
   void _onDragLowerRightEdgeStart(DragStartDetails details) async {
-    await _overlayController!.updateEnableDrag(false);
+    await _overlayController.updateEnableDrag(false);
   }
 
   void _onDragLowerRightEdgeUpdate(DragUpdateDetails details) async {
     final double xPos = max(details.globalPosition.dx, Constraints.overlayWindowMinimumWidth);
     final double yPos = max(details.globalPosition.dy, Constraints.overlayWindowMinimumHeight + Constraints.overlayLowerRightEdgeHeight);
-    await _overlayController!.updateEnableDrag(false);
-    await _overlayController!.resizeOverlay(xPos.toInt(), yPos.toInt());
+    await _overlayController.updateEnableDrag(false);
+    await _overlayController.resizeOverlay(xPos.toInt(), yPos.toInt());
   }
 
   void _onDragLowerRightEdgeEnd(DragEndDetails details) async {
     final double xPos = max(details.globalPosition.dx, Constraints.overlayWindowMinimumWidth);
     final double yPos = max(details.globalPosition.dy, Constraints.overlayWindowMinimumHeight + Constraints.overlayLowerRightEdgeHeight);
-    await _overlayController!.updateEnableDrag(true);
-    await _overlayController!.resizeOverlay(xPos.toInt(), yPos.toInt());
+    await _overlayController.updateEnableDrag(true);
+    await _overlayController.resizeOverlay(xPos.toInt(), yPos.toInt());
   }
 }

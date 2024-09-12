@@ -122,6 +122,16 @@ class _MyHomePageState extends State<MyHomePage> {
   void _toggleOverlay() async {
     if (status!) {
       if (!(await FlutterOverlayWindow.isActive())) {
+        FlutterOverlayWindow.shareData({
+          'width': (widthLogical! * Constraints.overlayWidthRatio).toInt(),
+          'height': (heightLogical! * Constraints.overlayHeightRatio).toInt(),
+          'mainColorIndex': isSelectedMainColor.indexOf(true),
+          'subColorIndex': isSelectedSubColor.indexOf(true),
+          'canvasColorIndex': isSelectedCanvasColor.indexOf(true),
+          'penColorIndex': isSelectedPenColor.indexOf(true),
+          'enableDrag': true,
+          'minimize': false,
+        });
         await FlutterOverlayWindow.showOverlay(
           width: (widthPhysics! * Constraints.overlayWidthRatio).toInt(),
           height: (heightPhysics! * Constraints.overlayHeightRatio).toInt(),
@@ -134,15 +144,6 @@ class _MyHomePageState extends State<MyHomePage> {
               heightLogical! * Constraints.overlayYPositionRatio
           ),
         );
-        FlutterOverlayWindow.shareData({
-          'width': (widthLogical! * Constraints.overlayWidthRatio).toInt(),
-          'height': (heightLogical! * Constraints.overlayHeightRatio).toInt(),
-          'enableDrag': true,
-          'mainColorIndex': isSelectedMainColor.indexOf(true),
-          'subColorIndex': isSelectedSubColor.indexOf(true),
-          'canvasColorIndex': isSelectedCanvasColor.indexOf(true),
-          'penColorIndex': isSelectedPenColor.indexOf(true),
-        });
       } else {
         await FlutterOverlayWindow.closeOverlay();
       }
