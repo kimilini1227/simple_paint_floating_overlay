@@ -61,33 +61,4 @@ class OverlayController with ChangeNotifier {
     this.isMinimize = isMinimize;
     notifyListeners();
   }
-
-  Future<void> showOverlay({
-    int height = WindowSize.fullCover,
-    int width = WindowSize.matchParent,
-    OverlayAlignment alignment = OverlayAlignment.center,
-    NotificationVisibility visibility = NotificationVisibility.visibilitySecret,
-    OverlayFlag flag = OverlayFlag.defaultFlag,
-    String overlayTitle = "overlay activated",
-    String? overlayContent,
-    bool enableDrag = false,
-    PositionGravity positionGravity = PositionGravity.none,
-    OverlayPosition? startPosition,
-  }) async {
-    currentHeight = height;
-    currentWidth = width;
-    currentEnableDrag = enableDrag;
-    return FlutterOverlayWindow.showOverlay(
-      height: height,
-      width: width,
-      alignment: alignment,
-      visibility: visibility,
-      flag: flag,
-      overlayTitle: overlayTitle,
-      overlayContent: overlayContent,
-      enableDrag: enableDrag,
-      positionGravity: PositionGravity.none,
-      startPosition: startPosition,
-    );
-  }
 }
