@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import 'package:flutter_overlay_window/flutter_overlay_window.dart';
@@ -37,7 +39,6 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  bool? status = false;
   List<bool> isSelectedMainColor = List.filled(Constraints.settingColorList.length, false);
   List<bool> isSelectedSubColor = List.filled(Constraints.settingColorList.length, false);
   List<bool> isSelectedCanvasColor = List.filled(Constraints.settingColorList.length, false);
@@ -54,12 +55,6 @@ class _MyHomePageState extends State<MyHomePage> {
     isSelectedSubColor[Constraints.settingColorList.indexOf(Constraints.overlayWindowSubColor)] = true;
     isSelectedCanvasColor[Constraints.settingColorList.indexOf(Constraints.overlayWindowCanvasColor)] = true;
     isSelectedPenColor[Constraints.settingColorList.indexOf(Constraints.overlayCanvasPenColor)] = true;
-    Future(() async {
-      status = await FlutterOverlayWindow.isPermissionGranted();
-      if (!status!) {
-        status = await FlutterOverlayWindow.requestPermission();
-      }
-    });
   }
 
   @override
@@ -82,28 +77,28 @@ class _MyHomePageState extends State<MyHomePage> {
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: <Widget>[
                   Row(
-                      children: <Widget>[
-                        const Text('${Constraints.overlayWindowMainColorText} :'),
-                        _colorToggleButton(isSelectedMainColor),
-                      ]
+                    children: <Widget>[
+                      const Text('${Constraints.overlayWindowMainColorText} :'),
+                      _colorToggleButton(isSelectedMainColor),
+                    ]
                   ),
                   Row(
-                      children: <Widget>[
-                        const Text('${Constraints.overlayWindowSubColorText} :'),
-                        _colorToggleButton(isSelectedSubColor),
-                      ]
+                    children: <Widget>[
+                      const Text('${Constraints.overlayWindowSubColorText} :'),
+                      _colorToggleButton(isSelectedSubColor),
+                    ]
                   ),
                   Row(
-                      children: <Widget>[
-                        const Text('${Constraints.overlayWindowCanvasColorText} :'),
-                        _colorToggleButton(isSelectedCanvasColor),
-                      ]
+                    children: <Widget>[
+                      const Text('${Constraints.overlayWindowCanvasColorText} :'),
+                      _colorToggleButton(isSelectedCanvasColor),
+                    ]
                   ),
                   Row(
-                      children: <Widget>[
-                        const Text('${Constraints.overlayCanvasPenColorText} :'),
-                        _colorToggleButton(isSelectedPenColor),
-                      ]
+                    children: <Widget>[
+                      const Text('${Constraints.overlayCanvasPenColorText} :'),
+                      _colorToggleButton(isSelectedPenColor),
+                    ]
                   ),
                 ],
               ),
@@ -120,7 +115,8 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void _toggleOverlay() async {
-    if (status!) {
+    bool status = await FlutterOverlayWindow.isPermissionGranted();
+    if (status) {
       if (!(await FlutterOverlayWindow.isActive())) {
         FlutterOverlayWindow.shareData({
           'width': (widthLogical! * Constraints.overlayWidthRatio).toInt(),
@@ -147,6 +143,8 @@ class _MyHomePageState extends State<MyHomePage> {
       } else {
         await FlutterOverlayWindow.closeOverlay();
       }
+    } else {
+      _showRequestPermissionDialog();
     }
   }
 
@@ -184,11 +182,50 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
+  void _showRequestPermissionDialog() async {
+    await showDialog(
+      context: context,
+      builder: (_) {
+        return AlertDialog(
+          title: const Text(
+            'Lacks necessary permission.',
+            style: TextStyle(
+              fontSize: 18.0,
+            ),
+          ),
+          content: const Text(
+            'Display over other apps permission is required to use this feature.',
+            style: TextStyle(
+              fontSize: 12.0,
+            ),
+          ),
+          actionsAlignment: MainAxisAlignment.spaceBetween,
+          actions: <Widget> [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+                FlutterOverlayWindow.requestPermission();
+              },
+              child: const Text('Open setting'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   void dispose() {
     super.dispose();
     Future(() async {
-      if (status!) {
+      bool status = await FlutterOverlayWindow.isPermissionGranted();
+      if (status) {
         if (await FlutterOverlayWindow.isActive()) {
           FlutterOverlayWindow.closeOverlay();
         }
