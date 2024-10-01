@@ -3,7 +3,9 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 
 import 'package:flutter_overlay_window/flutter_overlay_window.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 
+import 'package:simple_paint_floating_overlay/ads_manager.dart';
 import 'package:simple_paint_floating_overlay/overlay_main.dart';
 import 'package:simple_paint_floating_overlay/constraints.dart';
 
@@ -39,6 +41,8 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  bool adLoaded = false;
+  BannerAd? bannerAd;
   List<bool> isSelectedMainColor = List.filled(Constraints.settingColorList.length, false);
   List<bool> isSelectedSubColor = List.filled(Constraints.settingColorList.length, false);
   List<bool> isSelectedCanvasColor = List.filled(Constraints.settingColorList.length, false);
@@ -47,6 +51,22 @@ class _MyHomePageState extends State<MyHomePage> {
   double? heightPhysics;
   double? widthLogical;
   double? heightLogical;
+
+  Future<void> _loadAd() async {
+    bannerAd = BannerAd(
+      adUnitId: AdManager.bannerAdUnitId,
+      size: AdSize.fullBanner,
+      request: const AdRequest(),
+      listener: BannerAdListener(
+        onAdLoaded: (Ad ad) => setState(() {
+          bannerAd = ad as BannerAd;
+          adLoaded = true;
+        }),
+        onAdFailedToLoad: (ad, error) => ad.dispose(),
+      ),
+    );
+    return bannerAd!.load();
+  }
 
   @override
   void initState() {
@@ -58,7 +78,14 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _loadAd();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final AdWidget bannerAdWidget = AdWidget(ad: bannerAd!);
     widthPhysics = MediaQuery.sizeOf(context).width * MediaQuery.of(context).devicePixelRatio;
     heightPhysics = MediaQuery.sizeOf(context).height * MediaQuery.of(context).devicePixelRatio;
     widthLogical = MediaQuery.sizeOf(context).width;
@@ -103,6 +130,12 @@ class _MyHomePageState extends State<MyHomePage> {
                 ],
               ),
             ],
+          ),
+          Container(
+            alignment: Alignment.center,
+            width: bannerAd!.size.width.toDouble(),
+            height: bannerAd!.size.height.toDouble(),
+            child: adLoaded ? bannerAdWidget : const LinearProgressIndicator(),
           ),
         ],
       ),
@@ -231,6 +264,7 @@ class _MyHomePageState extends State<MyHomePage> {
         }
       }
     });
+    bannerAd!.dispose();
   }
 }
 
