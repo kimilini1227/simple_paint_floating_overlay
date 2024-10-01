@@ -41,7 +41,7 @@ abstract final class Constraints{
   // Overlay window
   static const double overlayWindowBorderWidth = 1.0;
   static const double overlayWindowMinimumWidth = 250.0;
-  static const double overlayWindowMinimumHeight = 50.0;
+  static const double overlayWindowMinimumHeight = 51.0;
 
   // Overlay top bar
   static const double overlayTopBarHeight = 48.0;
